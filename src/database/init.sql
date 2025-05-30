@@ -1,10 +1,17 @@
-CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
+-- WARNING! ONLY RUN THIS SCRIPT ONCE IN PRODUCTION. IF USING ANOTHER SCHEMA THAN THE DEFAULT, REFER TO THE README.MD
+
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS "pg_uuidv7";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TABLE IF EXISTS patient cascade;
 DROP TABLE IF EXISTS ward cascade;
 DROP TABLE IF EXISTS room cascade;
 DROP TABLE IF EXISTS bed cascade;
+DROP TABLE IF EXISTS alert cascade;
+DROP TABLE IF EXISTS staff cascade;
 
+DROP TYPE IF EXISTS alert_type;
 CREATE TYPE alert_type as ENUM (
     'oxygen-saturation',
     'heart-rate',
@@ -61,5 +68,14 @@ CREATE TABLE alert
     patient_id   UUID       NOT NULL,
     "alert_type" alert_type NOT NULL,
     CONSTRAINT fk_alert_patient FOREIGN KEY (patient_id) REFERENCES patient (patient_id)
+);
 
-)
+CREATE TABLE staff
+(
+    staff_id   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    ward_id    INTEGER NOT NULL,
+    first_name TEXT    NOT NULL,
+    last_name  TEXT    NOT NULL,
+    CONSTRAINT fk_staff_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id)
+);
+COMMIT;
