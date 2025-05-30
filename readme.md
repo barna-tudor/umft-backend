@@ -5,6 +5,8 @@ Backend API using Node.js and Express.
 Uses PostgreSQL as the database engine.
 Must Install the [pg_uuidv7](https://github.com/fboulnois/pg_uuidv7) extension on the PostgreSQL host machine.
 
+Must have Redis/Valkey up and running.
+
 ## 1. Set-up
 
 1. Download the source files.
