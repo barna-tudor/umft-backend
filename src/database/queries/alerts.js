@@ -1,6 +1,7 @@
 const insertNewAlertQuery =
     `INSERT INTO alert (patient_id, alert_type)
-     VALUES ($2, $3)`;
+     VALUES ($1, $2)
+     RETURNING alert_id`;
 
 module.exports = {
     insertNewAlertQuery

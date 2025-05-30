@@ -4,15 +4,15 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS "pg_uuidv7";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TABLE IF EXISTS patient cascade;
-DROP TABLE IF EXISTS ward cascade;
-DROP TABLE IF EXISTS room cascade;
-DROP TABLE IF EXISTS bed cascade;
-DROP TABLE IF EXISTS alert cascade;
-DROP TABLE IF EXISTS staff cascade;
+DROP TABLE IF EXISTS patient CASCADE;
+DROP TABLE IF EXISTS ward CASCADE;
+DROP TABLE IF EXISTS room CASCADE;
+DROP TABLE IF EXISTS bed CASCADE;
+DROP TABLE IF EXISTS alert CASCADE;
+DROP TABLE IF EXISTS staff CASCADE;
 
 DROP TYPE IF EXISTS alert_type;
-CREATE TYPE alert_type as ENUM (
+CREATE TYPE alert_type AS ENUM (
     'oxygen-saturation',
     'heart-rate',
     'blood-pressure',
@@ -53,8 +53,8 @@ CREATE TABLE patient
     -- Personal data stored here? or elsewhere?
     -- first_name ...
     is_admitted        BOOLEAN   NULL   DEFAULT TRUE,
-    admission_date     TIMESTAMP        DEFAULT now(),
-    discharge_date     TIMESTAMP NULL,
+    admission_date     TIMESTAMP        DEFAULT NOW(),
+    discharge_date     TIMESTAMP NULL   DEFAULT NULL,
     ward_id            INTEGER   NULL,
     room_id            INTEGER   NULL,
     bed_id             INTEGER   NULL,
