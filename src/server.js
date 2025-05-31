@@ -25,6 +25,8 @@ async function bootstrap() {
     // Middleware
     app.use(bodyParser.urlencoded({extended: false}))
     app.use(bodyParser.json())
+
+    // TODO: proper config
     app.use(cors())
     app.use(helmet());
 
