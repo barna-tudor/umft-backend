@@ -1,6 +1,6 @@
 // template for endpoints
-import ErrorWrapper from "./errorWrapper";
-import expressAsyncHandler from "express-async-handler";
+// import ErrorWrapper from "./errorWrapper";
+// import expressAsyncHandler from "express-async-handler";
 
 // const name = expressAsyncHandler(async (req, res) => {
 //     const { } = req.params;
