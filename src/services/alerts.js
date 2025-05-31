@@ -11,10 +11,14 @@ const {getPublisher} = require('../redis');
 const createAlert = expressAsyncHandler(async (req, res) => {
     const {ward_id, room_id, bed_id, patient_id, alert_type} = req.body;
     const pub = await getPublisher();
-    const channel = 'ward:${ward_id}';
+    const channel = `ward:${ward_id}`;
+    console.log('channel', channel);
     try {
         const result = await poolQuery(insertNewAlertQuery, [patient_id, alert_type]);
         await pub.publish(channel, JSON.stringify({
+            ward_id: ward_id, room_id: room_id, bed_id: bed_id, alert_type: alert_type,
+        }))
+        console.log(JSON.stringify({
             ward_id: ward_id, room_id: room_id, bed_id: bed_id, alert_type: alert_type,
         }))
         // TODO: update patient record.

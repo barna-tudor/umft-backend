@@ -18,6 +18,7 @@ const alertRouter = require('./routes/alerts');
 
 // Socket.IO + Redis
 const {createSocketServer} = require('./socketio');
+const {getSubscriber, getPublisher} = require("./redis");
 
 async function bootstrap() {
     const app = express();
@@ -36,6 +37,10 @@ async function bootstrap() {
 
     // Socket.IO + Redis
     const socketDotIO = await createSocketServer(server);
+
+    // Create a Publisher and a Subscriber for sanity.
+    await getPublisher();
+    await getSubscriber();
 
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
