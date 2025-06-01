@@ -17,8 +17,8 @@ const dontenv = require("dotenv").config();
 const alertRouter = require("./routes/alerts");
 
 // Socket.IO + Redis
-const {createSocketServer} = require("./socketio");
-const {getSubscriber, getPublisher} = require("./redis");
+const {createSocketServer} = require("./services/socketio");
+const {getSubscriber, getPublisher} = require("./services/redis");
 
 async function bootstrap() {
 	const app = express();
@@ -41,6 +41,10 @@ async function bootstrap() {
 	// Create a Publisher and a Subscriber for sanity.
 	await getPublisher();
 	await getSubscriber();
+	
+	if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
+		throw new Error("Missing required environment variables for blockchain logging.");
+	}
 	
 	const PORT = process.env.PORT || 3000;
 	server.listen(PORT, () => {
