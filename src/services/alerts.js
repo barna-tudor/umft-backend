@@ -4,7 +4,8 @@ const {pool} = require("../database/dbConfig");
 const ErrorWrapper = require("../errorWrapper");
 const poolQuery = util.promisify(pool.query).bind(pool);
 const {insertNewAlertQuery} = require("../database/queries/alerts");
-const {getPublisher} = require("../redis");
+const {getPublisher} = require("./redis");
+const {logAlertToBlockchain} = require("./blockChainLogger");
 
 
 const createAlert = expressAsyncHandler(async (req, res) => {
@@ -19,6 +20,8 @@ const createAlert = expressAsyncHandler(async (req, res) => {
 		console.log(JSON.stringify({
 			                           ward_id: ward_id, room_id: room_id, bed_id: bed_id, alert_type: alert_type
 		                           }));
+		// Log Blockchain
+		await logAlertToBlockchain(patient_id, alert_type);
 		// TODO: update patient record.
 		return res.status(201).json({status: 201, success: true, result: {alert_id: result.rows[0].alert_id}});
 	} catch (error) {

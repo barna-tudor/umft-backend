@@ -11,7 +11,7 @@ async function createSocketServer(httpServer) {
 	io.adapter(createAdapter(pubClient, subClient));
 	
 	// Subscribe to all ward channels
-	await subClient.pSubscribe("ward:*", (message, channel) => {
+	await subClient.pSubscribe("ward:*", async (message, channel) => {
 		const alert = JSON.parse(message);
 		// Emit alert to all sockets joined to this ward's room
 		io.to(channel).emit("alert", alert);
