@@ -18,7 +18,13 @@ Must have Redis/Valkey up and running.
         - `.env`: uncomment `DB_SCHEMA` and populate.
 4. Install dependencies:<br>
     `npm install`
-5. `npm run start`
+5. `npx hardhat init`(Can leave all default answers as-is except for `Create .gitignore`)
+6. `npx hardhat compile`  
+   `npx hardhat run scripts/deploy.js --network localhost`  
+    Copy the address given in terminal to `.env`
+7. In 2 different terminals,  
+`npx hardhat node` and copy one private_key to `.env`'s `ETHERS_PRIVATE_KEY` field;  
+`npm run start`
 
 ## 2. Endpoints
 
