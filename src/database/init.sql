@@ -22,25 +22,27 @@ CREATE TYPE alert_type AS ENUM (
 CREATE TABLE ward
 (
     ward_id   SERIAL PRIMARY KEY,
-    ward_name TEXT UNIQUE NOT NULL,
-    capacity  INTEGER     NOT NULL CHECK ( capacity > 0 )
+    ward_name VARCHAR(50) UNIQUE NOT NULL,
+    capacity  INTEGER            NOT NULL CHECK ( capacity > 0 ),
+    occupancy INTEGER            NOT NULL
 );
 CREATE TABLE room
 (
-    room_id   SERIAL PRIMARY KEY,
-    room_name TEXT    NOT NULL,
-    ward_id   INTEGER NOT NULL,
-    capacity  INTEGER NOT NULL CHECK ( capacity > 0 ),
+    room_id   SERIAL PRIMARY KEY DEFAULT uuid_generate_v4(),
+    room_name VARCHAR(50) NOT NULL,
+    ward_id   INTEGER     NOT NULL,
+    capacity  INTEGER     NOT NULL CHECK ( capacity > 0 ),
+    occupancy INTEGER     NOT NULL,
     CONSTRAINT fk_room_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
     CONSTRAINT unique_room_ward UNIQUE (ward_id, room_name)
 );
 CREATE TABLE bed
 (
     bed_id      SERIAL PRIMARY KEY,
-    bed_number  TEXT    NOT NULL, -- numerical or alphanumerical?
-    ward_id     INTEGER NOT NULL,
-    room_id     INTEGER NOT NULL,
-    bed_type    TEXT    NOT NULL, -- E.G., orthopedic / regular
+    bed_number  VARCHAR(50) NOT NULL, -- numerical or alphanumerical?
+    ward_id     INTEGER     NOT NULL,
+    room_id     INTEGER     NOT NULL,
+    bed_type    VARCHAR(20) NOT NULL, -- E.G., orthopedic / regular
     is_occupied BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_bed_room FOREIGN KEY (room_id) REFERENCES room (room_id),
     CONSTRAINT fk_bed_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
@@ -49,33 +51,43 @@ CREATE TABLE bed
 
 CREATE TABLE patient
 (
-    patient_id         UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    patient_id          UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
     -- Personal data stored here? or elsewhere?
     -- first_name ...
-    is_admitted        BOOLEAN   NULL   DEFAULT TRUE,
-    admission_date     TIMESTAMP        DEFAULT NOW(),
-    discharge_date     TIMESTAMP NULL   DEFAULT NULL,
-    ward_id            INTEGER   NULL,
-    room_id            INTEGER   NULL,
-    bed_id             INTEGER   NULL,
-    has_alert_history  BOOLEAN   NULL   DEFAULT FALSE,
-    has_treatment_plan BOOLEAN   NULL   DEFAULT FALSE,
-    is_archived        BOOLEAN   NULL   DEFAULT FALSE
+    is_admitted         BOOLEAN   NULL   DEFAULT TRUE,
+    admission_timestamp TIMESTAMP NULL   DEFAULT NULL,
+    discharge_timestamp TIMESTAMP NULL   DEFAULT NULL,
+    ward_id             INTEGER   NULL,
+    room_id             INTEGER   NULL,
+    bed_id              INTEGER   NULL,
+    has_treatment_plan  BOOLEAN   NULL   DEFAULT FALSE,
+    is_archived         BOOLEAN   NULL   DEFAULT FALSE,
+    primary_physician   UUID             DEFAULT uuid_nil(),
+    CONSTRAINT fk_patient_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
+    CONSTRAINT fk_patient_room FOREIGN KEY (room_id) REFERENCES room (room_id),
+    CONSTRAINT fk_patient_bed FOREIGN KEY (ward_id) REFERENCES ward (ward_id)
 );
+
 CREATE TABLE alert
 (
-    alert_id     UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    alert_id     UUID       NOT NULL PRIMARY KEY DEFAULT uuid_generate_v7(),
     patient_id   UUID       NOT NULL,
     "alert_type" alert_type NOT NULL,
+    "timestamp"  TIMESTAMP  NOT NULL             DEFAULT NOW(),
     CONSTRAINT fk_alert_patient FOREIGN KEY (patient_id) REFERENCES patient (patient_id)
 );
 
 CREATE TABLE staff
 (
-    staff_id   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    ward_id    INTEGER NOT NULL,
-    first_name TEXT    NOT NULL,
-    last_name  TEXT    NOT NULL,
-    CONSTRAINT fk_staff_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id)
+    staff_id     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    primary_ward UUID NOT NULL,
+    CONSTRAINT fk_staff_ward FOREIGN KEY (primary_ward) REFERENCES ward (ward_id)
+);
+
+CREATE TABLE alert_subscriptions
+(
+    staff_id UUID    NOT NULL,
+    ward_id  INTEGER NOT NULL,
+    PRIMARY KEY (staff_id, ward_id)
 );
 COMMIT;
