@@ -1,7 +1,7 @@
 const expressAsyncHandler = require("express-async-handler");
 const {pool, poolQuery} = require("../database/dbConfig");
 const ErrorWrapper = require("../errorWrapper");
-const {getPublisher} = require("./redis");
+const {getPublisher} = require("../../lib/redis");
 require("../database/queries/patients");
 
 const newPatient = expressAsyncHandler(async (req, res) => {

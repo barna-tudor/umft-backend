@@ -2,7 +2,7 @@ const expressAsyncHandler = require("express-async-handler");
 const {poolQuery} = require("../database/dbConfig");
 const ErrorWrapper = require("../errorWrapper");
 const {insertNewAlertQuery} = require("../database/queries/alerts");
-const {getPublisher} = require("./redis");
+const {getPublisher} = require("../../lib/redis");
 const {logAlertToBlockchain} = require("./blockChainLogger");
 
 

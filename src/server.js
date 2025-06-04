@@ -9,6 +9,8 @@ const {createAdapter} = require("@socket.io/redis-adapter");
 const helmet = require("helmet");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const auth = require("../lib/auth");
+import {toNodeHandler} from "better-auth/node";
 
 // dotEnv
 const dontEnv = require("dotenv").config();
@@ -17,13 +19,14 @@ const dontEnv = require("dotenv").config();
 const alertRouter = require("./routes/alerts");
 
 // Socket.IO + Redis
-const {createSocketServer} = require("./services/socketio");
-const {getSubscriber, getPublisher} = require("./services/redis");
+const {createSocketServer} = require("../lib/socketio");
+const {getSubscriber, getPublisher} = require("../lib/redis");
 
 async function bootstrap() {
     const app = express();
 
     // Middleware
+    app.all('/api/auth/{*any}', toNodeHandler(auth));
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
 

@@ -5,7 +5,7 @@ const pool = new Pool({
     host: process.env.DB_HOST,
     database: process.env.DB,
     password: process.env.DB_PASS,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT),
     idleTimeoutMillis: 60 * 1000,
     max: 5
 });
