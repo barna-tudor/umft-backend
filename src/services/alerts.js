@@ -7,7 +7,8 @@ const {logAlertToBlockchain} = require("./blockChainLogger");
 
 
 const createAlert = expressAsyncHandler(async (req, res) => {
-    const {ward_id, room_id, bed_id, patient_id, alert_type} = req.body;
+    const {patient_id, alert_type} = req.body;
+    const {ward_id, room_id, bed_id} = req.client;
     const pub = await getPublisher();
     const channel = `ward:${ward_id}`;
     console.log("channel", channel);

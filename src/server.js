@@ -1,16 +1,19 @@
+import {pool} from "./database/dbConfig";
+import {toNodeHandler} from "better-auth/node";
+
 const path = require("path");
 const express = require("express");
 const http = require("http");
 const {createClient} = require("redis");
 const {Server} = require("socket.io");
 const {createAdapter} = require("@socket.io/redis-adapter");
+const crypto = require('crypto');
 
 // Additional Middleware
 const helmet = require("helmet");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const auth = require("../lib/auth");
-import {toNodeHandler} from "better-auth/node";
 
 // dotEnv
 const dontEnv = require("dotenv").config();
@@ -23,6 +26,7 @@ const {createSocketServer} = require("../lib/socketio");
 const {getSubscriber, getPublisher} = require("../lib/redis");
 
 async function bootstrap() {
+
     const app = express();
 
     // Middleware
@@ -37,6 +41,33 @@ async function bootstrap() {
     // Routes
     app.use("/api", alertRouter);
 
+
+    // Bedside computer registration:
+    // The client program, on boot, can use this key:
+    let sessionSetupKey = crypto.randomBytes(32).toString('hex');
+    console.log("Session setup key:\n", sessionSetupKey);
+    // To get a permanent/rolling (TBD) API key from the server:
+    app.post('/api/registerBedsideComputer', async (req, res) => {
+        const {setupAPIKey, ward_id, room_id, bed_id} = req.body;
+        if (!setupAPIKey || setupAPIKey !== sessionSetupKey) {
+            return res.status(403).json({
+                success: false, error: "invalid-setup-api-key",
+            })
+        }
+        const apiKey = crypto.randomBytes(32).toString('hex');
+        const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
+        try {
+            await pool.query(`
+                INSERT INTO bedside_api_keys(ward_id, room_id, bed_id, client_name, api_key_hash)
+                VALUES ($1, $2, $3, $4, $5)
+            `, [ward_id, room_id, bed_id, `ward-${ward_id}-room-${room_id}-bed-${bed_id}`, hashedKey],);
+            return res.json({
+                success: true, apiKey: apiKey,
+            });
+        } catch (err) {
+            return res.status(500).json({success: false, error: err.message});
+        }
+    });
 
     // Socket.IO + Redis
     const server = http.createServer(app);

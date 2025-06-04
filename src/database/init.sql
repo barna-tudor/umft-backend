@@ -4,13 +4,6 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS "pg_uuidv7";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TABLE IF EXISTS patient CASCADE;
-DROP TABLE IF EXISTS ward CASCADE;
-DROP TABLE IF EXISTS room CASCADE;
-DROP TABLE IF EXISTS bed CASCADE;
-DROP TABLE IF EXISTS alert CASCADE;
-DROP TABLE IF EXISTS staff CASCADE;
-
 DROP TYPE IF EXISTS alert_type;
 CREATE TYPE alert_type AS ENUM (
     'oxygen-saturation',
@@ -19,6 +12,7 @@ CREATE TYPE alert_type AS ENUM (
     'temperature'
     );
 
+DROP TABLE IF EXISTS ward CASCADE;
 CREATE TABLE ward
 (
     ward_id   SERIAL PRIMARY KEY,
@@ -26,6 +20,8 @@ CREATE TABLE ward
     capacity  INTEGER            NOT NULL CHECK ( capacity > 0 ),
     occupancy INTEGER            NOT NULL
 );
+
+DROP TABLE IF EXISTS room CASCADE;
 CREATE TABLE room
 (
     room_id   SERIAL PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -36,6 +32,8 @@ CREATE TABLE room
     CONSTRAINT fk_room_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
     CONSTRAINT unique_room_ward UNIQUE (ward_id, room_name)
 );
+
+DROP TABLE IF EXISTS bed CASCADE;
 CREATE TABLE bed
 (
     bed_id      SERIAL PRIMARY KEY,
@@ -49,6 +47,8 @@ CREATE TABLE bed
     CONSTRAINT unique_bed_room UNIQUE (room_id, bed_number)
 );
 
+
+DROP TABLE IF EXISTS patient CASCADE;
 CREATE TABLE patient
 (
     patient_id          UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
@@ -68,6 +68,7 @@ CREATE TABLE patient
     CONSTRAINT fk_patient_bed FOREIGN KEY (ward_id) REFERENCES ward (ward_id)
 );
 
+DROP TABLE IF EXISTS alert CASCADE;
 CREATE TABLE alert
 (
     alert_id     UUID       NOT NULL PRIMARY KEY DEFAULT uuid_generate_v7(),
@@ -77,6 +78,7 @@ CREATE TABLE alert
     CONSTRAINT fk_alert_patient FOREIGN KEY (patient_id) REFERENCES patient (patient_id)
 );
 
+DROP TABLE IF EXISTS staff CASCADE;
 CREATE TABLE staff
 (
     staff_id     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -84,6 +86,7 @@ CREATE TABLE staff
     CONSTRAINT fk_staff_ward FOREIGN KEY (primary_ward) REFERENCES ward (ward_id)
 );
 
+DROP TABLE IF EXISTS alert_subscriptions;
 CREATE TABLE alert_subscriptions
 (
     staff_id UUID    NOT NULL,
@@ -91,7 +94,30 @@ CREATE TABLE alert_subscriptions
     PRIMARY KEY (staff_id, ward_id)
 );
 
+-- Bedside computer API keys:
+DROP TABLE IF EXISTS bedside_api_keys;
+CREATE TABLE bedside_api_keys
+(
+    id           UUID      DEFAULT uuid_generate_v1(),
+    ward_id      INTEGER NOT NULL,
+    room_id      INTEGER NOT NULL,
+    bed_id       INTEGER NOT NULL,
+    client_name  TEXT    NOT NULL,
+    api_key_hash TEXT    NOT NULL,
+    created_at   TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (ward_id, room_id, bed_id),
+    CONSTRAINT fk_apikey_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
+    CONSTRAINT fk_apikey_room FOREIGN KEY (room_id) REFERENCES room (room_id),
+    CONSTRAINT fk_apikey_bed FOREIGN KEY (bed_id) REFERENCES bed (bed_id)
+);
+
+
 -- Better-Auth
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "session";
+DROP TABLE IF EXISTS "account";
+DROP TABLE IF EXISTS "verification";
+
 CREATE TABLE "user"
 (
     "id"            TEXT      NOT NULL PRIMARY KEY,
@@ -141,7 +167,5 @@ CREATE TABLE "verification"
     "createdAt"  TIMESTAMP,
     "updatedAt"  TIMESTAMP
 );
-
-
 
 COMMIT;
