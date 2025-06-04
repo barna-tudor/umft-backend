@@ -4,7 +4,7 @@ const {createClient} = require('redis');
     const wardId = process.argv[2] || 1;
     const channel = `ward:${wardId}`;
 
-    const subscriber = createClient({ url: 'redis://localhost:6379' });
+    const subscriber = createClient({url: 'redis://localhost:6379'});
     subscriber.on('error', (err) => console.error('Redis Client Error', err));
 
     await subscriber.connect();

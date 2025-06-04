@@ -5,11 +5,11 @@ const checkJWT = require("./auth");
 
 
 alertsRouter.post("/alert", async (req, res) => {
-	try {
-		return await createAlert(req, res);
-	} catch (err) {
-		//TODO
-	}
+    try {
+        return await createAlert(req, res);
+    } catch (err) {
+        //TODO
+    }
 });
 
 module.exports = alertsRouter;
