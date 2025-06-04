@@ -48,5 +48,4 @@ patientsRouter.get("/ward/:id/patients", async (req, res) => {
     }
 });
 
-
 module.exports = patientsRouter;

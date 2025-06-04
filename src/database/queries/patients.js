@@ -1,4 +1,4 @@
-const getAvailableBedQuery = `
+export const getAvailableBedQuery = `
     SELECT r.room_id,
            b.bed_id
     FROM room r
@@ -11,24 +11,24 @@ const getAvailableBedQuery = `
     LIMIT 1;
 `;
 
-const updateBedIsOccupiedQuery = `
+export const updateBedIsOccupiedQuery = `
     UPDATE bed
     SET is_occupied = TRUE
     WHERE bed_id = $1
 `;
 
-const updateRoomOccupancyQuery = `
+export const updateRoomOccupancyQuery = `
     UPDATE room
     SET occupancy = occupancy + 1
     WHERE room_id = $1
 `;
-const updateWardOccupancyQuery = `
+export const updateWardOccupancyQuery = `
     UPDATE ward
     SET occupancy = occupancy + 1
     WHERE ward_id = $1
 `;
 
-const insertNewPatientQuery = `
+export const insertNewPatientQuery = `
     INSERT INTO patient (ward_id, room_id, bed_id)
     VALUES ($1, $2, $3)
     RETURNING patient_id

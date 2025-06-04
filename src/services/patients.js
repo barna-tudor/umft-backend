@@ -4,7 +4,7 @@ const ErrorWrapper = require("../errorWrapper");
 const {getPublisher} = require("./redis");
 require("../database/queries/patients");
 
-const newPatient = expressAsyncHandler(async (req, res) => {
+export const newPatient = expressAsyncHandler(async (req, res) => {
     let {ward_id, room_id, bed_id} = req.body;
     const client = await pool.connect();
     // Publish to a message channel?
@@ -34,7 +34,3 @@ const newPatient = expressAsyncHandler(async (req, res) => {
         client.release();
     }
 });
-
-module.exports = {
-    newPatient, getPatientByUUID, archivePatient, dischargePatient, getPatientsByRoom, getPatientsByWard
-};
