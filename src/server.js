@@ -1,3 +1,4 @@
+// Libraries
 const dontEnv = require("dotenv").config();
 const path = require("path");
 const express = require("express");
@@ -13,8 +14,8 @@ const bodyParser = require("body-parser");
 const {createClient} = require("redis");
 const {Server} = require("socket.io");
 const {createAdapter} = require("@socket.io/redis-adapter");
-const {toNodeHandler} = require("better-auth/node");
-import {auth} from "../lib/auth.ts"
+// const {toNodeHandler} = require("better-auth/node");
+// import {auth} from "../lib/auth.ts"
 
 // Routes
 const alertRouter = require("./routes/alerts");
@@ -27,7 +28,7 @@ async function bootstrap() {
     const app = express();
 
     // Middleware
-    app.all('/api/auth/{*any}', toNodeHandler(auth));
+    // app.all('/api/auth/{*any}', toNodeHandler(auth));
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
 
