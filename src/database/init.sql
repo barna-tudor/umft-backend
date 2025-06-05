@@ -1,10 +1,9 @@
 -- WARNING! ONLY RUN THIS SCRIPT ONCE IN PRODUCTION. IF USING ANOTHER SCHEMA THAN THE DEFAULT, REFER TO THE README.MD
-
-BEGIN;
+abort;
 CREATE EXTENSION IF NOT EXISTS "pg_uuidv7";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TYPE IF EXISTS alert_type;
+DROP TYPE IF EXISTS alert_type CASCADE;
 CREATE TYPE alert_type AS ENUM (
     'oxygen-saturation',
     'heart-rate',
@@ -24,7 +23,7 @@ CREATE TABLE ward
 DROP TABLE IF EXISTS room CASCADE;
 CREATE TABLE room
 (
-    room_id   SERIAL PRIMARY KEY DEFAULT uuid_generate_v4(),
+    room_id   SERIAL PRIMARY KEY,
     room_name VARCHAR(50) NOT NULL,
     ward_id   INTEGER     NOT NULL,
     capacity  INTEGER     NOT NULL CHECK ( capacity > 0 ),
@@ -82,7 +81,7 @@ DROP TABLE IF EXISTS staff CASCADE;
 CREATE TABLE staff
 (
     staff_id     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    primary_ward UUID NOT NULL,
+    primary_ward INTEGER NOT NULL,
     CONSTRAINT fk_staff_ward FOREIGN KEY (primary_ward) REFERENCES ward (ward_id)
 );
 
@@ -167,5 +166,3 @@ CREATE TABLE "verification"
     "createdAt"  TIMESTAMP,
     "updatedAt"  TIMESTAMP
 );
-
-COMMIT;

@@ -1,19 +1,19 @@
-import {pool} from "./database/dbConfig";
-import {toNodeHandler} from "better-auth/node";
-
 const path = require("path");
 const express = require("express");
 const http = require("http");
-const {createClient} = require("redis");
-const {Server} = require("socket.io");
-const {createAdapter} = require("@socket.io/redis-adapter");
 const crypto = require('crypto');
+const {pool} = require("./database/dbConfig");
+
 
 // Additional Middleware
 const helmet = require("helmet");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const auth = require("../lib/auth");
+const {createClient} = require("redis");
+const {Server} = require("socket.io");
+const {createAdapter} = require("@socket.io/redis-adapter");
+const {toNodeHandler} = require("better-auth/node");
+const {auth} = require("../lib/auth")
 
 // dotEnv
 const dontEnv = require("dotenv").config();
