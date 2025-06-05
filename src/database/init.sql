@@ -80,9 +80,9 @@ CREATE TABLE alert
 DROP TABLE IF EXISTS staff CASCADE;
 CREATE TABLE staff
 (
-    staff_id     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    primary_ward INTEGER NOT NULL,
-    CONSTRAINT fk_staff_ward FOREIGN KEY (primary_ward) REFERENCES ward (ward_id)
+    staff_id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    institutional_email TEXT UNIQUE,
+    has_signed_up       BOOLEAN          DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS alert_subscriptions;
@@ -125,19 +125,25 @@ CREATE TABLE "user"
     "emailVerified" BOOLEAN   NOT NULL,
     "image"         TEXT,
     "createdAt"     TIMESTAMP NOT NULL,
-    "updatedAt"     TIMESTAMP NOT NULL
+    "updatedAt"     TIMESTAMP NOT NULL,
+    "role"          TEXT,
+    "banned"        BOOLEAN,
+    "banReason"     TEXT,
+    "banExpires"    TIMESTAMP,
+    "staff_id"      TEXT      NOT NULL REFERENCES staff (staff_id)
 );
 
 CREATE TABLE "session"
 (
-    "id"        TEXT      NOT NULL PRIMARY KEY,
-    "expiresAt" TIMESTAMP NOT NULL,
-    "token"     TEXT      NOT NULL UNIQUE,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    "ipAddress" TEXT,
-    "userAgent" TEXT,
-    "userId"    TEXT      NOT NULL REFERENCES "user" ("id")
+    "id"             TEXT      NOT NULL PRIMARY KEY,
+    "expiresAt"      TIMESTAMP NOT NULL,
+    "token"          TEXT      NOT NULL UNIQUE,
+    "createdAt"      TIMESTAMP NOT NULL,
+    "updatedAt"      TIMESTAMP NOT NULL,
+    "ipAddress"      TEXT,
+    "userAgent"      TEXT,
+    "userId"         TEXT      NOT NULL REFERENCES "user" ("id"),
+    "impersonatedBy" TEXT
 );
 
 CREATE TABLE "account"

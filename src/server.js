@@ -3,7 +3,7 @@ const path = require("path");
 const express = require("express");
 const http = require("http");
 const crypto = require('crypto');
-const {pool,poolQuery} = require("./database/dbConfig");
+const {pool, poolQuery} = require("./database/dbConfig");
 
 
 // Additional Middleware
@@ -14,7 +14,7 @@ const {createClient} = require("redis");
 const {Server} = require("socket.io");
 const {createAdapter} = require("@socket.io/redis-adapter");
 const {toNodeHandler} = require("better-auth/node");
-const {auth} = require("../lib/auth")
+import {auth} from "../lib/auth.ts"
 
 // Routes
 const alertRouter = require("./routes/alerts");
@@ -32,7 +32,12 @@ async function bootstrap() {
     app.use(bodyParser.json());
 
     // TODO: proper config
-    app.use(cors());
+    app.use(cors({
+            origin: process.env.FRONTEND_HOST,
+            methods: ["GET", "POST", "PUT", "DELETE"],
+            credentials: true,
+        }
+    ));
     app.use(helmet());
 
     // Routes
@@ -75,10 +80,10 @@ async function bootstrap() {
     await getPublisher();
     await getSubscriber();
 
-    if(process.env.USE_BLOCKCHAIN)
-    if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
-        throw new Error("Missing required environment variables for blockchain logging.");
-    }
+    if (process.env.USE_BLOCKCHAIN)
+        if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
+            throw new Error("Missing required environment variables for blockchain logging.");
+        }
 
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
