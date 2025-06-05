@@ -1,8 +1,9 @@
+const dontEnv = require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const http = require("http");
 const crypto = require('crypto');
-const {pool} = require("./database/dbConfig");
+const {pool,poolQuery} = require("./database/dbConfig");
 
 
 // Additional Middleware
@@ -15,9 +16,6 @@ const {createAdapter} = require("@socket.io/redis-adapter");
 const {toNodeHandler} = require("better-auth/node");
 const {auth} = require("../lib/auth")
 
-// dotEnv
-const dontEnv = require("dotenv").config();
-
 // Routes
 const alertRouter = require("./routes/alerts");
 
@@ -26,7 +24,6 @@ const {createSocketServer} = require("../lib/socketio");
 const {getSubscriber, getPublisher} = require("../lib/redis");
 
 async function bootstrap() {
-
     const app = express();
 
     // Middleware
@@ -45,11 +42,10 @@ async function bootstrap() {
     // Bedside computer registration:
     // The client program, on boot, can use this key:
     let sessionSetupKey = crypto.randomBytes(32).toString('hex');
-    console.log("Session setup key:\n", sessionSetupKey);
     // To get a permanent/rolling (TBD) API key from the server:
     app.post('/api/registerBedsideComputer', async (req, res) => {
         const {setupAPIKey, ward_id, room_id, bed_id} = req.body;
-        if (!setupAPIKey || setupAPIKey !== sessionSetupKey) {
+        if (setupAPIKey === undefined || setupAPIKey !== sessionSetupKey) {
             return res.status(403).json({
                 success: false, error: "invalid-setup-api-key",
             })
@@ -57,15 +53,17 @@ async function bootstrap() {
         const apiKey = crypto.randomBytes(32).toString('hex');
         const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
         try {
-            await pool.query(`
+            const query = `
                 INSERT INTO bedside_api_keys(ward_id, room_id, bed_id, client_name, api_key_hash)
                 VALUES ($1, $2, $3, $4, $5)
-            `, [ward_id, room_id, bed_id, `ward-${ward_id}-room-${room_id}-bed-${bed_id}`, hashedKey],);
+            `;
+            const params = [ward_id, room_id, bed_id, `ward-${ward_id}-room-${room_id}-bed-${bed_id}`, hashedKey];
+            await pool.query(query, params);
             return res.json({
                 success: true, apiKey: apiKey,
             });
         } catch (err) {
-            return res.status(500).json({success: false, error: err.message});
+            return res.status(500).json({success: false, error: err});
         }
     });
 
@@ -83,7 +81,8 @@ async function bootstrap() {
 
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
-        console.log("HTTPS + WebSocket listening on port ", PORT);
+        console.log("HTTP + WebSocket listening on port ", PORT);
+        console.log("Session setup key:\n", sessionSetupKey);
     });
 }
 
