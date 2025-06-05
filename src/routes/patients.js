@@ -3,7 +3,6 @@ const patientsRouter = express.Router();
 const {
     newPatient, getPatientByUUID, archivePatient, dischargePatient, getPatientsByRoom, getPatientsByWard
 } = require("../services/patients");
-const checkJWT = require("./auth");
 
 
 patientsRouter.post("/newPatient", async (req, res) => {
