@@ -75,6 +75,7 @@ async function bootstrap() {
     await getPublisher();
     await getSubscriber();
 
+    if(process.env.USE_BLOCKCHAIN)
     if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
         throw new Error("Missing required environment variables for blockchain logging.");
     }

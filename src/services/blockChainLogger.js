@@ -1,4 +1,3 @@
-require("dotenv").config();
 const {ethers} = require("ethers");
 const contractJson = require("../../artifacts/contracts/HealthLog.sol/HealthLog.json");
 
