@@ -77,22 +77,6 @@ CREATE TABLE alert
     CONSTRAINT fk_alert_patient FOREIGN KEY (patient_id) REFERENCES patient (patient_id)
 );
 
-DROP TABLE IF EXISTS staff CASCADE;
-CREATE TABLE staff
-(
-    staff_id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    institutional_email TEXT UNIQUE,
-    has_signed_up       BOOLEAN          DEFAULT FALSE
-);
-
-DROP TABLE IF EXISTS alert_subscriptions;
-CREATE TABLE alert_subscriptions
-(
-    staff_id UUID    NOT NULL,
-    ward_id  INTEGER NOT NULL,
-    PRIMARY KEY (staff_id, ward_id)
-);
-
 -- Bedside computer API keys:
 DROP TABLE IF EXISTS bedside_api_keys;
 CREATE TABLE bedside_api_keys
@@ -108,67 +92,4 @@ CREATE TABLE bedside_api_keys
     CONSTRAINT fk_apikey_ward FOREIGN KEY (ward_id) REFERENCES ward (ward_id),
     CONSTRAINT fk_apikey_room FOREIGN KEY (room_id) REFERENCES room (room_id),
     CONSTRAINT fk_apikey_bed FOREIGN KEY (bed_id) REFERENCES bed (bed_id)
-);
-
-
--- Better-Auth
-DROP TABLE IF EXISTS "user" CASCADE;
-DROP TABLE IF EXISTS "session" CASCADE;
-DROP TABLE IF EXISTS "account" CASCADE;
-DROP TABLE IF EXISTS "verification" CASCADE;
-
-CREATE TABLE "user"
-(
-    "id"            TEXT      NOT NULL PRIMARY KEY,
-    "name"          TEXT      NOT NULL,
-    "email"         TEXT      NOT NULL UNIQUE,
-    "emailVerified" BOOLEAN   NOT NULL,
-    "image"         TEXT,
-    "createdAt"     TIMESTAMP NOT NULL,
-    "updatedAt"     TIMESTAMP NOT NULL,
-    "role"          TEXT,
-    "banned"        BOOLEAN,
-    "banReason"     TEXT,
-    "banExpires"    TIMESTAMP,
-    "staff_id"      TEXT      NOT NULL REFERENCES staff (staff_id)
-);
-
-CREATE TABLE "session"
-(
-    "id"             TEXT      NOT NULL PRIMARY KEY,
-    "expiresAt"      TIMESTAMP NOT NULL,
-    "token"          TEXT      NOT NULL UNIQUE,
-    "createdAt"      TIMESTAMP NOT NULL,
-    "updatedAt"      TIMESTAMP NOT NULL,
-    "ipAddress"      TEXT,
-    "userAgent"      TEXT,
-    "userId"         TEXT      NOT NULL REFERENCES "user" ("id"),
-    "impersonatedBy" TEXT
-);
-
-CREATE TABLE "account"
-(
-    "id"                    TEXT      NOT NULL PRIMARY KEY,
-    "accountId"             TEXT      NOT NULL,
-    "providerId"            TEXT      NOT NULL,
-    "userId"                TEXT      NOT NULL REFERENCES "user" ("id"),
-    "accessToken"           TEXT,
-    "refreshToken"          TEXT,
-    "idToken"               TEXT,
-    "accessTokenExpiresAt"  TIMESTAMP,
-    "refreshTokenExpiresAt" TIMESTAMP,
-    "scope"                 TEXT,
-    "password"              TEXT,
-    "createdAt"             TIMESTAMP NOT NULL,
-    "updatedAt"             TIMESTAMP NOT NULL
-);
-
-CREATE TABLE "verification"
-(
-    "id"         TEXT      NOT NULL PRIMARY KEY,
-    "identifier" TEXT      NOT NULL,
-    "value"      TEXT      NOT NULL,
-    "expiresAt"  TIMESTAMP NOT NULL,
-    "createdAt"  TIMESTAMP,
-    "updatedAt"  TIMESTAMP
 );

@@ -3,7 +3,8 @@ const {poolQuery} = require("../database/dbConfig");
 const ErrorWrapper = require("../errorWrapper");
 const {insertNewAlertQuery} = require("../database/queries/alerts");
 const {getPublisher} = require("../../lib/redis");
-const {logAlertToBlockchain} = require("./blockChainLogger");
+if (process.env.USE_BLOCKCHAIN === true)
+    var {logAlertToBlockchain} = require("./blockChainLogger");
 
 
 const createAlert = expressAsyncHandler(async (req, res) => {

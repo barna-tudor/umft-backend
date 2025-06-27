@@ -13,8 +13,6 @@ const bodyParser = require("body-parser");
 const {createClient} = require("redis");
 const {Server} = require("socket.io");
 const {createAdapter} = require("@socket.io/redis-adapter");
-const {toNodeHandler} = require("better-auth/node");
-import {auth} from "../lib/auth.ts"
 
 // Routes
 const alertRouter = require("./routes/alerts");
@@ -27,7 +25,6 @@ async function bootstrap() {
     const app = express();
 
     // Middleware
-    app.all('/api/auth/{*any}', toNodeHandler(auth));
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
 
@@ -80,7 +77,7 @@ async function bootstrap() {
     await getPublisher();
     await getSubscriber();
 
-    if (process.env.USE_BLOCKCHAIN)
+    if (process.env.USE_BLOCKCHAIN===true)
         if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
             throw new Error("Missing required environment variables for blockchain logging.");
         }
