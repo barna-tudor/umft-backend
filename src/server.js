@@ -30,11 +30,12 @@ async function bootstrap() {
 
     // TODO: proper config
     app.use(cors({
-            origin: process.env.FRONTEND_HOST,
-            methods: ["GET", "POST", "PUT", "DELETE"],
-            credentials: true,
-        }
-    ));
+        /*
+        origin: process.env.FRONTEND_HOST,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
+         */
+    }));
     app.use(helmet());
 
     // Routes
@@ -56,11 +57,11 @@ async function bootstrap() {
         const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
         try {
             const query = `
-                INSERT INTO bedside_api_keys(ward_id, room_id, bed_id, client_name, api_key_hash)
+                INSERT INTO "bedside_api_keys"(ward_id, room_id, bed_id, client_name, api_key_hash)
                 VALUES ($1, $2, $3, $4, $5)
             `;
             const params = [ward_id, room_id, bed_id, `ward-${ward_id}-room-${room_id}-bed-${bed_id}`, hashedKey];
-            await pool.query(query, params);
+            const result = await pool.query(query, params);
             return res.json({
                 success: true, apiKey: apiKey,
             });
@@ -77,10 +78,11 @@ async function bootstrap() {
     await getPublisher();
     await getSubscriber();
 
-    if (process.env.USE_BLOCKCHAIN===true)
+    if (process.env.USE_BLOCKCHAIN === true) {
         if (!process.env.ETHERS_PROVIDER || !process.env.ETHERS_PRIVATE_KEY || !process.env.CONTRACT_ADDRESS) {
             throw new Error("Missing required environment variables for blockchain logging.");
         }
+    }
 
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
